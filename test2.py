@@ -12,7 +12,7 @@ from selenium.common.exceptions import NoSuchElementException
 from time import sleep
 import time
 
-browser = webdriver.Chrome()
+browser = webdriver.Firefox()
 
 #lists
 title=[]
@@ -105,19 +105,31 @@ for url in url_list:
     
     try:
       sleep(2)
-      availability_temp = browser.find_element(By.XPATH, '//*[@id="availability"]/span').text
-      availability.append(availability_temp)
-      print(1)
+      availability_element = WebDriverWait(browser, 25).until(
+        EC.visibility_of_element_located((By.XPATH, "//*[@id='availability']"))
+      )
+      availability.append(availability_element.text.replace('\n', ''))
+      print(availability)
         
-    except NoSuchElementException:
+    except TimeoutException:
       try:
-        sleep(2)
-        availability_temp = browser.find_element(By.XPATH, '//*[@id="availability"]').text
-        availability.append(availability_temp)
-        print(2)
-           
-      except NoSuchElementException:
-        availability.append(availability_temp)
+        vailability_element = WebDriverWait(browser, 25).until(
+        EC.visibility_of_element_located((By.XPATH, '//*[@id="outOfStock"]/div/div[1]'))
+        )
+        availability.append(availability_element.text.replace('\n', ''))
+        print(availability)
+      
+      except TimeoutException:
+        try:
+          vailability_element = WebDriverWait(browser, 25).until(
+          EC.visibility_of_element_located((By.XPATH, '//*[@id="availability"]/span[2]'))
+          )
+          availability.append(availability_element.text.replace('\n', ''))
+          print(availability)
+        except TimeoutException:
+          availability.append('In stock')
+          print(availability)
+            
             
 
     try:
@@ -183,19 +195,30 @@ for url in url_list:
     
     try:
       sleep(2)
-      availability_temp = browser.find_element(By.XPATH, '//*[@id="availability"]').text
-      availability.append(availability_temp)
-      print(1)
+      availability_element = WebDriverWait(browser, 25).until(
+        EC.visibility_of_element_located((By.XPATH, "//*[@id='availability']"))
+      )
+      availability.append(availability_element.text.replace('\n', ''))
+      print(availability)
         
-    except NoSuchElementException:
+    except TimeoutException:
       try:
-        sleep(2)
-        availability_temp = browser.find_element(By.XPATH, '//*[@id="availability"]/span').text
-        availability.append(availability_temp)
-        print(2)
-           
-      except NoSuchElementException:
-        availability.append(availability_temp)
+        vailability_element = WebDriverWait(browser, 25).until(
+        EC.visibility_of_element_located((By.XPATH, '//*[@id="outOfStock"]/div/div[1]'))
+        )
+        availability.append(availability_element.text.replace('\n', ''))
+        print(availability)
+      
+      except TimeoutException:
+        try:
+          vailability_element = WebDriverWait(browser, 25).until(
+          EC.visibility_of_element_located((By.XPATH, '//*[@id="availability"]/span[2]'))
+          )
+          availability.append(availability_element.text.replace('\n', ''))
+          print(availability)
+        except TimeoutException:
+          availability.append('In stock')
+          print(availability)
             
 
     try:
@@ -263,19 +286,9 @@ df = pd.DataFrame(zip(*pro_list),columns = ['title','availability','brand','ship
 
 df.index.name = 'product_id'
 
-df.to_csv('product11.csv')
+df.to_csv('productfinal.csv')
   
   
 
     
-
-
-    
-    
-    
-    
-    
-    
-    
-  
-  
+browser.quit()
