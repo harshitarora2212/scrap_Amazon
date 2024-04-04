@@ -23,6 +23,9 @@ sold_by= []
 price=[]
 price_per_weight =[]
 size =[]
+asin = []
+asin_final = []
+master_url = []
 
 #all urls
 url_list = [
@@ -86,6 +89,8 @@ for url in url_list:
     print(title)
     sleep(1)
     
+    master_url.append(url)
+    
     try:
       sleep(2)
       price_temp = browser.find_element(By.XPATH, '//*[@id="sns-base-price"]/div/span[1]')
@@ -113,7 +118,7 @@ for url in url_list:
         
     except TimeoutException:
       try:
-        vailability_element = WebDriverWait(browser, 25).until(
+        availability_element = WebDriverWait(browser, 15).until(
         EC.visibility_of_element_located((By.XPATH, '//*[@id="outOfStock"]/div/div[1]'))
         )
         availability.append(availability_element.text.replace('\n', ''))
@@ -121,7 +126,7 @@ for url in url_list:
       
       except TimeoutException:
         try:
-          vailability_element = WebDriverWait(browser, 25).until(
+          availability_element = WebDriverWait(browser, 15).until(
           EC.visibility_of_element_located((By.XPATH, '//*[@id="availability"]/span[2]'))
           )
           availability.append(availability_element.text.replace('\n', ''))
@@ -161,6 +166,14 @@ for url in url_list:
       size.append('Currently Unavailable')
       
     print(size)
+    
+    try:
+      asin_temp = WebDriverWait(browser, 10).until(
+          EC.visibility_of_element_located((By.XPATH, "//*[@id='detailBullets_feature_div']/ul/li/span[contains(., 'ASIN')]"))
+      )
+      asin.append(asin_temp.text)
+    except TimeoutException:
+      asin.append('Unavailable')  
 
 
   else:
@@ -171,7 +184,9 @@ for url in url_list:
     sleep(2)
     variations.click()
     sleep(3)
-  
+    
+    master_url.append(url)
+     
     title.append(browser.find_element(By.ID, 'productTitle').text)
     print(title)
     sleep(1)
@@ -195,7 +210,7 @@ for url in url_list:
     
     try:
       sleep(2)
-      availability_element = WebDriverWait(browser, 25).until(
+      availability_element = WebDriverWait(browser, 15).until(
         EC.visibility_of_element_located((By.XPATH, "//*[@id='availability']"))
       )
       availability.append(availability_element.text.replace('\n', ''))
@@ -203,7 +218,7 @@ for url in url_list:
         
     except TimeoutException:
       try:
-        vailability_element = WebDriverWait(browser, 25).until(
+        availability_element = WebDriverWait(browser, 15).until(
         EC.visibility_of_element_located((By.XPATH, '//*[@id="outOfStock"]/div/div[1]'))
         )
         availability.append(availability_element.text.replace('\n', ''))
@@ -211,7 +226,7 @@ for url in url_list:
       
       except TimeoutException:
         try:
-          vailability_element = WebDriverWait(browser, 25).until(
+          availability_element = WebDriverWait(browser, 15).until(
           EC.visibility_of_element_located((By.XPATH, '//*[@id="availability"]/span[2]'))
           )
           availability.append(availability_element.text.replace('\n', ''))
@@ -250,10 +265,16 @@ for url in url_list:
       size.append('Currently Unavailable')
       
     print(size)
-
     
-    
-    
+    try:
+      asin_temp = WebDriverWait(browser, 10).until(
+          EC.visibility_of_element_located((By.XPATH, "//*[@id='detailBullets_feature_div']/ul/li/span[contains(., 'ASIN')]"))
+      )
+      asin.append(asin_temp.text)
+    except TimeoutException:
+      asin.append('Unavailable')
+   
+     
     print('end of variations')
   
   print('end of url_list')
@@ -271,6 +292,11 @@ for i in range(len(ships_from)):
 for i in range(len(sold_by)):
   if sold_by[i]=='':
     sold_by[i] = 'Currently Unavailable'
+    
+for asin_value in asin:
+    asin_clean = asin_value.split(':')[1].strip()
+    asin_final.append(asin_clean)
+
 
 print('title:',title)
 print('availability:',availability) 
@@ -279,16 +305,17 @@ print('ships_from:',ships_from)
 print('sold_by:',sold_by)
 print('price:',price)
 print('size:',size)
+print('asin_final:',asin_final)
+print('master_url:',master_url)
 
-pro_list = [title,availability,brand,ships_from,sold_by,price,size]
+pro_list = [title,availability,brand,ships_from,sold_by,price,size,asin_final,master_url]
 
-df = pd.DataFrame(zip(*pro_list),columns = ['title','availability','brand','ships_from','sold_by','price','size'])
+df = pd.DataFrame(zip(*pro_list),columns = ['title','availability','brand','ships_from','sold_by','price','size','asin','master_url'])
 
 df.index.name = 'product_id'
 
-df.to_csv('productfinal.csv')
-  
-  
-
-    
+df.to_csv('productsfinal.csv')
+ 
 browser.quit()
+
+  
